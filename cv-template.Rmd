@@ -1,0 +1,114 @@
+---
+name: "`r jsonlite::read_json('cv.json')$first_name`"
+surname: "`r jsonlite::read_json('cv.json')$last_name`"
+position: "`r jsonlite::read_json('cv.json')$position`"
+address: "`r jsonlite::read_json('cv.json')$address`"
+phone: "`r jsonlite::read_json('cv.json')$phone`"
+profilepic: "`r jsonlite::read_json('cv.json')$profile_pic`"
+email: "`r jsonlite::read_json('cv.json')$email`"
+github: "`r jsonlite::read_json('cv.json')$github`"
+linkedin: "`r jsonlite::read_json('cv.json')$linkedin`"
+date: "`r format(Sys.time(), '%B %Y')`"
+headcolor: "414141"
+aboutme: "`r jsonlite::read_json('cv.json')$aboutme`"
+output: vitae::awesomecv
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+library(vitae)
+library(tidyverse)
+library(data.table)
+library(glue)
+library(plotly)
+library(ggmosaic)
+library(ggsci)
+library(openxlsx)
+
+# LOAD DATA -----------------------------------------------------------------
+cv_data <- loadWorkbook("cv_data.xlsx")
+
+```
+
+
+```{r, fig.height=2}
+read.xlsx(cv_data, sheet = 'plot') %>% 
+  ggplot() + 
+  geom_mosaic(aes(x=product(Awesomeness, keyword),
+                  alpha = Awesomeness,
+                  fill = keyword), divider = ddecker()) + 
+  theme_minimal() + 
+  scale_fill_startrek() +
+  scale_alpha_manual(values=c('Cool' = 0.65, 'Very Cool' = 1)) +
+  theme(legend.position = 'none') +
+  labs(x = '', y = '')
+```
+
+
+# Skills
+
+```{r}
+read.xlsx(cv_data, sheet = 'skills') %>%  
+  as.data.table()
+```
+
+
+# Experience
+
+```{r}
+read.xlsx(cv_data, sheet = 'title') %>% 
+  left_join(
+    read.xlsx(cv_data, sheet = 'description'),
+    by = c('id', 'title')
+  ) %>% 
+  arrange(id) %>% 
+  detailed_entries(
+    what = title,
+    when = glue('{start}-{end}'),
+    with = employer,
+    why = description
+  )
+```
+
+
+# Education
+
+```{r}
+read.xlsx(cv_data, sheet = 'education') %>% 
+  detailed_entries(Degree, Year, Institution)
+```
+
+
+# Honours
+
+- `r jsonlite::read_json('cv.json')$honour_1`
+
+- `r jsonlite::read_json('cv.json')$honour_2`
+
+
+# References
+```{r}
+read.xlsx(cv_data, sheet = 'references') %>% 
+  detailed_entries(
+    what = Organisation,
+    when = Position,
+    with = Name,
+    why = contact
+  )
+```
+
+
+
+# Publications
+
+```{r}
+library(dplyr)
+# knitr::write_bib(c("vitae", "tibble"), "packages.bib")
+
+bibliography_entries("cv.bib") %>%
+  arrange(desc(issued), desc(author$family))
+```
+<br>
+
+This document is created using R Notebook and vitae with this template available on my github ''
+

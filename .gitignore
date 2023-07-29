@@ -1,0 +1,15 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+
+*.bib
+*.enl
+*.pdf
+*.xlsx
+*.jpg
+*.json
+*.cls
+
+fonts/
+cv.Data/
