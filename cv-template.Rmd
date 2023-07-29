@@ -87,6 +87,7 @@ read.xlsx(cv_data, sheet = 'education') %>%
 
 
 # References
+
 ```{r}
 read.xlsx(cv_data, sheet = 'references') %>% 
   detailed_entries(
@@ -98,17 +99,14 @@ read.xlsx(cv_data, sheet = 'references') %>%
 ```
 
 
-
 # Publications
 
 ```{r}
-library(dplyr)
-# knitr::write_bib(c("vitae", "tibble"), "packages.bib")
-
 bibliography_entries("cv.bib") %>%
   arrange(desc(issued), desc(author$family))
 ```
-<br>
 
-This document is created using R Notebook and vitae with this template available on my github ''
+\noindent\rule{18cm}{0.4pt}
+
+This document is created using R Markdown available on `r jsonlite::read_json('cv.json')$template_location`
 
